@@ -40,9 +40,35 @@ To run PeGSModular, the only requirement is that you have photoelastic images, a
 
 ```
 topDir
-+--imageDir
-	++- image1.jpg
+└───imageDir
+	└───image1.jpg
 ```
 
+If you run all of the modules, at the end you will have the following outputs and datastructure
 
+```
+topDir
+└───imageDir
+|	└───image1.jpg
+└───particleDir
+|	└───image1_centers.txt
+|	└───Centers_image1.jpg
+|	└───trajectories.fig
+|	└───particleDetect_params.txt
+└───contactDir
+|	└───image1_contacts.mat
+|	└───contactDetect_params.txt
+|	└───Contacts_image1.jpg
+└───solvedDir
+|	└───image1_solved.mat
+|	└───image1_Synth.jpg
+|	└───diskSolve_params.txt
+└───adjacencyDir
+|	└───image1_Adjacency.txt
+|	└───adjacencyMatrix_params.txt
+└───Adjacency_list.txt
+└───particle_positions.txt
+```
+___
 
+This README was written by Carmen Lee (cllee3@ncsu.edu) on 01/08/2024. Modules were developed and adapted by Kerstin Nordstrom, Lori McCabe, Abrar Nassar, Ben MacMillan, Ted Brzinski, Karen Daniels, and Carmen Lee.
