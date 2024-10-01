@@ -147,10 +147,6 @@ if isfield(fileParams,'imgReg') == 0
     % several Step*.jpg files are present on GitHub as sample data
 end
 
-if isfield(fileParams,'frameIdInd') == 0
-    fileParams.frameIdInd = 8; %image format and regex
-    %several Step*.jpg files are present on GitHub as sample data
-end
 
 
 if verbose
