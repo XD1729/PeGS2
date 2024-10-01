@@ -113,8 +113,6 @@ end
 
 function [fileParams] = paramsSetUp(fileParams, verbose)
 
-
-
 if isfield(fileParams,'topDir') == 0
     fileParams.topDir = './testdata/'; % where the images are stored
 end

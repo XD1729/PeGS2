@@ -176,7 +176,7 @@ end
 %% Set default parameters if no user input is given
 function params = setupParams(params, verbose)
 
-%% Least squares fit options
+%%Least squares fit options
 %Algorithm to use. Other options: 'trust-region-reflective', 'interior-point'
 if ~isfield(params,'algorithm')
     params.algorithm = 'levenberg-marquardt';
