@@ -35,7 +35,7 @@
 % 
 % 
 % **O**
-% The output of this module are N individual adjacency lists in the format [frame, id1, id2, tangential, normal] force. As well, 1 txt file listing all adjacencies is saved in the main directory. If verbose is selected, it will show a weighted quiver plot of the force contact network
+% The output of this module are N individual adjacency lists in the format [frame, id1, id2, tangential, normal] force. As well, 1 txt file listing all adjacencies is saved in the main directory. If verbose is selected, it will show a weighted quiver plot of the force contact network. If the particle has a load bearing contact with the wall, the id will be set to -1.
 % 
 % ---
 % 
@@ -204,7 +204,7 @@ for frame = 1:nFrames
 
     adjData = load([AdjFiles(frame).folder, '/', AdjFiles(frame).name]);
 
-    if length(adjData) > skipamount
+    if size(adjData, 1) > skipamount
         error(['up the skipamount by', num2str(length(adjData)-skipamount)])
     end
     Adj_list((frame-1)*skipamount+1:(frame-1)*skipamount +length(adjData),:) = adjData;

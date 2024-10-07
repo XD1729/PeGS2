@@ -22,7 +22,7 @@ N = length(particle);
             
             % Initial force and alpha values
             for i=1:z
-                forces(i) = 2*particle(n).f*particle(n).contactG2s(i)/cg2s;
+                forces(i) = 2*particle(n).forcescale*particle(n).contactG2s(i)/cg2s;
             end
             alphas = zeros(z,1);
             

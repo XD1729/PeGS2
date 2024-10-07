@@ -16,7 +16,7 @@
 % **OR** particle\_positions.txt located in topDir from the particleTrack module, which needs to be in the format of [frame, particleid, x, y, r, edge], where x, y, r are values in pixels, edge is a flag to indicate if the particle is near an edge
 % 
 % **O**: *_contacts.mat which consists of a data structure called particle, saved in directory topDir/contactsDir/
-% particle = {'id','x','y','r','rm','color','fsigma','z','forcescale','g2','forces','betas','alphas','neighbours','contactG2s','forceImage', 'edge'}
+% particle = {'id','x','y','r','rm','color','fsigma','z','forcescale','g2','forces', fitError,'betas','alphas','neighbours','contactG2s','forceImage', 'edge'}
 % Which will be partially populated from this step and the disksolve module, 
 % 
 % Change from pegs 1. Include an edge flag that designates the direction of the edge. 
@@ -140,7 +140,7 @@ for imgnumb = 1:size(files,1)
 
         N = size(pData,1);
 
-        particle(1:N) = struct('id',0,'x',0,'y',0,'r',0,'rm',0,'color','','fsigma',0,'z',0,'forcescale',0,'g2',0,'forces',[],'betas',[],'alphas',[],'neighbours',[],'contactG2s',[],'forceImage',[],  'edge', 0);
+        particle(1:N) = struct('id',0,'x',0,'y',0,'r',0,'rm',0,'color','','fsigma',0,'z',0,'forcescale',0,'g2',0,'forces',[],'fitError', [],'betas',[],'alphas',[],'neighbours',[],'contactG2s',[],'forceImage',[],  'edge', 0);
         
         for n = 1:N %Bookkeeping from centers-tracked
             particle(n).id= id(n);
