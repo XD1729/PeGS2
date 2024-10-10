@@ -194,7 +194,7 @@ end
 %% Compile all of the adjacency lists into a master list
 AdjFiles = dir(fullfile(fileParams.topDir, fileParams.adjacencyDir, '*_Adjacency.txt'));
 nFrames = length(AdjFiles);
-testData = load(fullfile(AdjFiles(nFrames-1).folder, AdjFiles(nFrames -1).name));
+testData = load(fullfile(AdjFiles(nFrames).folder, AdjFiles(nFrames).name));
 
 skipamount = length(testData)+amParams.skipvalue;
 Adj_list = nan(nFrames*skipamount, 5);

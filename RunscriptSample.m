@@ -1,4 +1,4 @@
-%% a sample runscript showing all of the module parameters
+  %% a sample runscript showing all of the module parameters
 
 %% file parameters
 fileParams.topDir = './testdata/'; % where the top directory of the data will be stored
