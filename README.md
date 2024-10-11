@@ -2,7 +2,7 @@
 
 Welcome to the first release of PeGS2, the modular, community updated version of the PhotoElastic Grain Solver (originally developed by Johnathan Kollmer). This package takes images from photoelastic granular material and converts it into vector contact and forces. 
 
-
+We recommend using this version if you are doing photoelasticimetry because we've fixed some bugs, optimized computation, and made it easily adaptible to different user needs with plug-and-play modules.
 ___
 Basic functionality
 
