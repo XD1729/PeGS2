@@ -1,6 +1,0 @@
-light_correction_coefficients: [-9.26802e-09, 1.19248e-06, 0.0761286]
-I_low: 0.09
-I_high: 1
-auto_detect: 1
-obstacle_mask: 1
-region_specific: 1
