@@ -3,6 +3,7 @@
 %% file parameters
 fileParams.topDir = './testdata/'; % where the top directory of the data will be stored
 fileParams.imgDir = 'images'; % where the images are saved
+fileParams.processedImgDir = 'processed_images'; % where the preprocessed images are saved
 fileParams.particleDir = 'particles'; %output directory for particle information
 fileParams.contactDir = 'contacts'; % output directory for contact information
 fileParams.solvedDir = 'solved'; % output directory for solved force information
@@ -13,6 +14,33 @@ fileParams.frameIdInd = 8; %the index in the file names where sequential numberi
 %% verbose
 verbose = true; % do you want plots?
  
+%% imagePreprocess parameters
+ipParams.auto_detect = true; % automatically detect image type and apply appropriate parameters
+
+% Parameters below will be used if auto_detect is set to false
+% or can be used to override certain auto-detected settings
+ipParams.light_correction_coefficients = [-9.268015495383530e-09, 1.192483586444351e-06, 0.076128557100614]; % lighting correction polynomial coefficients
+ipParams.I_low = 0.09; % lower intensity limit for contrast adjustment
+ipParams.I_high = 1; % upper intensity limit for contrast adjustment
+ipParams.obstacle_mask = true; % apply obstacle masking for test.JPG
+ipParams.region_specific = true; % apply region-specific processing for test.JPG
+
+% Uncomment below for test.JPG specific settings (if auto_detect is false)
+% ipParams.auto_detect = false;
+% ipParams.light_correction_coefficients = [-9.268e-09, 1.192e-06, 0.076]; 
+% ipParams.I_low = 0.09;
+% ipParams.I_high = 1;
+% ipParams.obstacle_mask = true;
+% ipParams.region_specific = true;
+
+% Uncomment below for Step09 series images (if auto_detect is false)
+% ipParams.auto_detect = false;
+% ipParams.light_correction_coefficients = [0, 0, 0]; % No lighting correction needed
+% ipParams.I_low = 0.05;
+% ipParams.I_high = 0.95;
+% ipParams.obstacle_mask = false;
+% ipParams.region_specific = false;
+
 %% particleDetect parameters
 
 pdParams.boundaryType = "rectangle";
@@ -59,6 +87,7 @@ amParams.skipvalue = 20; %I chose this as a result of my system size, could and 
 
 %% compile module parameters into their own structure to pass into PeGSModular
 
+moduleParams.ipParams = ipParams;
 moduleParams.pdParams = pdParams;
 moduleParams.ptParams = ptParams;
 moduleParams.cdParams = cdParams;

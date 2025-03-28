@@ -92,22 +92,45 @@ for imgnumb = 1:size(files,1)
 
     clear particle %reinitialize the particle structure
 
-    %read in image
-    Img = imread(fullfile(files(imgnumb).folder, files(imgnumb).name));
-    Rimg = Img(:,:,1);
-    Gimg = Img(:,:,2); %force image
-
-
-    %adjust green image contrast by subtracting red channel and adjusting
-    %contrast levels as set by imadjust_limits. This will need to be
-    %tweaked for different lighting and transmission or reflection
-    %photoelasticimetry
+    % Check if processed force image exists first
+    [~, baseName, ext] = fileparts(files(imgnumb).name);
+    processedForceImgPath = fullfile(fileParams.topDir, fileParams.processedImgDir, [baseName, '_enhanced', ext]);
     
-    Gimg = Gimg-Rimg./cdParams.rednormal;
-    Gimg= im2double(Gimg);
-   
-    Gimg = Gimg.*(Gimg > 0);
-    Gimg = imadjust(Gimg,cdParams.imadjust_limits);
+    if exist(processedForceImgPath, 'file')
+        % Use preprocessed force image
+        if verbose
+            disp(['Using enhanced image for force detection: ', processedForceImgPath]);
+        end
+        Gimg = imread(processedForceImgPath);
+        
+        % If image is RGB convert to grayscale
+        if size(Gimg, 3) > 1
+            Gimg = rgb2gray(Gimg);
+        end
+        
+        % Convert to double if needed
+        Gimg = im2double(Gimg);
+    else
+        % Fallback to original method if processed image not found
+        if verbose
+            disp(['No enhanced image found, using original image: ', files(imgnumb).name]);
+        end
+        %read in image
+        Img = imread(fullfile(files(imgnumb).folder, files(imgnumb).name));
+        Rimg = Img(:,:,1);
+        Gimg = Img(:,:,2); %force image
+
+        %adjust green image contrast by subtracting red channel and adjusting
+        %contrast levels as set by imadjust_limits. This will need to be
+        %tweaked for different lighting and transmission or reflection
+        %photoelasticimetry
+        
+        Gimg = Gimg-Rimg./cdParams.rednormal;
+        Gimg = im2double(Gimg);
+       
+        Gimg = Gimg.*(Gimg > 0);
+        Gimg = imadjust(Gimg,cdParams.imadjust_limits);
+    end
    
     if cdParams.figverbose
         figure(1); %makes a lot of figures, override onto 1
