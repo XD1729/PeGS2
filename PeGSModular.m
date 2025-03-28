@@ -35,12 +35,19 @@ fileParams = paramsSetUp(fileParams, verbose);
 
 
 if ~exist('moduleParams', 'var')
+    ipParams = struct;
     pdParams = struct;
     ptParams = struct;
     cdParams = struct;
     dsParams = struct;
     amParams = struct;
 else
+    if isfield(moduleParams, 'ipParams') ==1
+        ipParams = moduleParams.ipParams;
+    else
+        ipParams = struct;
+    end
+    
     if isfield(moduleParams, 'pdParams') ==1
         pdParams = moduleParams.pdParams;
     else
@@ -75,8 +82,10 @@ end
 
 % these are basic steps to run PeGS on the sample images
 
-%% module to detect contacts between particles. Set parameters in cdParams structure
+%% module to preprocess images for better lighting and clarity. Set parameters in ipParams structure
+imagePreprocess(fileParams, ipParams, verbose);
 
+%% module to detect contacts between particles. Set parameters in cdParams structure
 particleDetect(fileParams, pdParams, verbose);
 
 

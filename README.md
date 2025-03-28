@@ -9,6 +9,7 @@ Basic functionality
 
 This package contains the following modules
 * `PeGSModular`: this is the main body of the script, it calls the modules in order, each module can be commented out if you do not need to run it
+* `imagePreprocess`: improves image quality by correcting lighting issues and enhancing contrast
 * `particleDetect`: finds the particles using a circle finding algorithm
 * `particleTrack`: tracks particles in subsequent frames and assigns them a persistent id (optional, can comment out for non-sequential images)
 * `contactDetect` : detects contacts between potential neighbours using gradients in image intensity
@@ -50,6 +51,9 @@ If you run all of the modules, at the end you will have the following outputs an
 topDir
 └───imageDir
 |	└───image1.jpg
+└───processedImgDir
+|	└───image1_enhanced.jpg
+|	└───imagePreprocess_params.txt
 └───particleDir
 |	└───image1_centers.txt
 |	└───Centers_image1.jpg
