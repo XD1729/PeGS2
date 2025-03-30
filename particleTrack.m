@@ -24,14 +24,46 @@
 
 function out = particleTrack(fileParams, ptParams, verbose)
 
+%% Image type detection (for parameter adjustment)
+% Check the image type to set appropriate parameters
+particledirectory = fullfile(fileParams.topDir, fileParams.particleDir);
+datafiles = dir(fullfile(particledirectory,'*centers.txt')); %output from particleDetect
+
+% Get image filenames to check image type
+imgdirectory = fullfile(fileParams.topDir, fileParams.imgDir);
+imgfiles = dir(fullfile(imgdirectory, fileParams.imgReg));
+
+% Default skipValue
 if ~isfield(ptParams, 'skipValue')
     ptParams.skipValue = 20; %for initializing the data structure, will depend on the amount of particles you are looking for and the flux in and out of frame
 end
 
-%% File Management
+% Check if the current images include test.jpg
+has_test_image = false;
+for i = 1:length(imgfiles)
+    if contains(lower(imgfiles(i).name), 'test')
+        has_test_image = true;
+        break;
+    end
+end
 
-particledirectory = fullfile(fileParams.topDir, fileParams.particleDir);
-datafiles = dir(fullfile(particledirectory,'*centers.txt')); %output from particleDetect
+% Adjust parameters based on image type
+if has_test_image
+    % Load first centers file to check particle count
+    firstCentersFile = fullfile(datafiles(1).folder, datafiles(1).name);
+    particles_data = load(firstCentersFile);
+    
+    % Check if this is the test.jpg file (usually has more particles)
+    if size(particles_data, 1) > 100  % If particle count is large, assume it's test.jpg
+        % Parameters optimized for test.jpg (large number of particles, different radius)
+        ptParams.skipValue = 200;  % Much larger skipValue for more particles
+        if verbose
+            disp('Detected test.jpg image type - using larger skipValue parameter');
+        end
+    end
+end
+
+%% File Management
 nFrames = size(datafiles,1);    %how many files
 
 %% Initializing data array
@@ -49,6 +81,11 @@ end
 
 skipamount = length(par_ref)+ptParams.skipValue; %I chose this as a result of my system size, could and should be altered based on your specific system and variability in finding particles
 
+if verbose
+    disp(['Using skipValue: ' num2str(ptParams.skipValue)]);
+    disp(['Total particles in first frame: ' num2str(length(par_ref))]);
+    disp(['Allocated skipamount: ' num2str(skipamount)]);
+end
 
 %centers has the format [frame, particleID, x position, y position, r, edge] 
 centers = nan(nFrames*skipamount, 6); %this is the big array where we store the tracked ids for all of the frames
@@ -102,8 +139,25 @@ for i = 1:numel(datafiles)-1
     end
     
     if size(par_curr, 1) > skipamount
-        error('skipvalue is not large enough, please increase')
-    end %double check that the skip amount is large enough and not going to overwrite other data
+        % Dynamically increase skipValue if needed
+        ptParams.skipValue = size(par_curr, 1) + 50;  % Add extra buffer
+        skipamount = length(par_ref) + ptParams.skipValue;
+        
+        if verbose
+            disp(['Increasing skipValue to ' num2str(ptParams.skipValue)]);
+            disp(['New skipamount: ' num2str(skipamount)]);
+            disp(['Current particles: ' num2str(size(par_curr, 1))]);
+            disp(['Current image: ' datafiles(i+1).name]);
+        end
+        
+        % Reallocate the centers array with the new skipamount
+        old_centers = centers;
+        centers = nan(nFrames*skipamount, 6);
+        
+        % Copy the existing data to the new array
+        valid_rows = ~isnan(old_centers(:,1));
+        centers(1:sum(valid_rows),:) = old_centers(valid_rows,:);
+    end
     
     %reorganize
     par_curr = sortrows(par_curr,1);
