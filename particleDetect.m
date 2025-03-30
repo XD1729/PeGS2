@@ -25,6 +25,7 @@
 % - `dtol` : the distance tolerance (pixels) between the edge of the particle and the wall to be assigned as as edge
 % - `sensitivity` : the sensitivity to for circle finding. Higher sensitivity == find more circles
 % - `edgeThresh` : to assign what is the edge of an object in the image (note: not the same edge as the edge flag, and this is set inside the main function after the image has been loaded)
+% - `imageType` : automatically detected image type (e.g., "test" or "step09") to adjust parameters accordingly
 % 
 % **notes**
 % If the polariscope is set up for being in transmission rather than reflection, imfindcircles might work better if you set 'ObjectPolarity' to 'dark' rather than 'bright'
@@ -63,25 +64,51 @@ function out = particleDetect(fileParams, pdParams, verbose)
 
         im = imread(fullfile(images(frame).folder,images(frame).name)); %read image
         
+        %% Check image type for parameter adjustment
+        currentImage = images(frame).name;
+        currentParams = pdParams;
+        
+        % Check if current image is test.jpg or similar
+        if contains(lower(currentImage), 'test')
+            % Parameters for test.jpg type images (larger particles)
+            currentParams.imageType = "test";
+            currentParams.radiusRange = [110 160]; % Larger particles in test.jpg
+            currentParams.sensitivity = 0.95; % May need different sensitivity
+            
+            if verbose
+                disp(['Detected test.jpg image type - using larger radius range: [', ...
+                     num2str(currentParams.radiusRange(1)), ' ', ...
+                     num2str(currentParams.radiusRange(2)), ']']);
+            end
+        else
+            % Default parameters for Step09 series
+            currentParams.imageType = "step09";
+            % Keep existing parameters from pdParams
+        end
+        
+        if verbose
+            disp(['Processing image: ', currentImage, ' with image type: ', currentParams.imageType]);
+        end
+        
         %get red channel for particle detection
         red = im(:,:,1); %particles
         green = im(:,:,2); %photoelastic signal
         red = imsubtract(red, green*0.05); %some green bleeds through, makes sharper red
 
         %circle detection
-        [centers, radii, ~] = imfindcircles(red,pdParams.radiusRange,'ObjectPolarity','bright','Method','TwoStage','Sensitivity',pdParams.sensitivity);%, 'EdgeThreshold',p.edgeThresh);
+        [centers, radii, ~] = imfindcircles(red,currentParams.radiusRange,'ObjectPolarity','bright','Method','TwoStage','Sensitivity',currentParams.sensitivity);%, 'EdgeThreshold',p.edgeThresh);
 
         %classify edge particles
-        if pdParams.boundaryType == "rectangle"
+        if currentParams.boundaryType == "rectangle"
             
             lpos = min(centers(:,1)-radii);
             rpos = max(centers(:,1)+radii);
             upos = max(centers(:,2)+radii);
             bpos = min(centers(:,2)-radii);
-            lwi = centers(:,1)-radii <= lpos+pdParams.dtol;
-            rwi = centers(:,1)+radii >= rpos-pdParams.dtol;
-            uwi = centers(:,2)+radii >= upos-pdParams.dtol;
-            bwi = centers(:,2)-radii <= bpos+pdParams.dtol; %need to add edge case of corner particle
+            lwi = centers(:,1)-radii <= lpos+currentParams.dtol;
+            rwi = centers(:,1)+radii >= rpos-currentParams.dtol;
+            uwi = centers(:,2)+radii >= upos-currentParams.dtol;
+            bwi = centers(:,2)-radii <= bpos+currentParams.dtol; %need to add edge case of corner particle
 
             edges = zeros(length(radii), 1);
             edges(rwi) = 1; %right
@@ -154,9 +181,8 @@ end
 
 %set radius range
 if isfield(p,'radiusRange') == 0
-    p.radiusRange = [45 80];
+    p.radiusRange = [45 80];  % Default radius range for Step09 series
 end
-
 
 %classify edge particles with tolerance
 if isfield(p,'dtol') == 0
@@ -170,8 +196,12 @@ if isfield(p,'sensitivity') == 0
 end
 
 
-
 if isfield(p,'edgeThresh') == 0
     p.edgeThresh = 0.02;
+end
+
+% Set default image type
+if isfield(p,'imageType') == 0
+    p.imageType = "step09";  % Default image type
 end
 end
