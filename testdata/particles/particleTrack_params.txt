@@ -1,0 +1,11 @@
+topDir	./testdata/
+imgDir	images
+processedImgDir	processed_images
+particleDir	particles
+contactDir	contacts
+solvedDir	solved
+adjacencyDir	adjacency
+imgReg	*.jpg
+frameIdInd	8
+skipValue	238
+time	2025-03-30 21:31:23

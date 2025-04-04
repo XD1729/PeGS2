@@ -1,0 +1,17 @@
+topDir	./testdata/	
+imgDir	images	
+processedImgDir	processed_images	
+particleDir	particles	
+contactDir	contacts	
+solvedDir	solved	
+adjacencyDir	adjacency	
+imgReg	*.jpg	
+frameIdInd	8	
+boundaryType	rectangle	
+radiusRange	45	80
+dtol	10	
+sensitivity	0.945	
+edgeThresh	0.02	
+imageType	step09	
+lastimagename	test.jpg	
+time	2025-03-30 21:31:12	

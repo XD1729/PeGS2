@@ -41,6 +41,7 @@ if ~exist('moduleParams', 'var')
     cdParams = struct;
     dsParams = struct;
     amParams = struct;
+    vaParams = struct;
 else
     if isfield(moduleParams, 'ipParams') ==1
         ipParams = moduleParams.ipParams;
@@ -72,10 +73,16 @@ else
         dsParams = struct;
     end
 
-    if isfield(moduleParams, 'pdParams') ==1
+    if isfield(moduleParams, 'amParams') ==1
         amParams = moduleParams.amParams;
     else
         amParams = struct;
+    end
+    
+    if isfield(moduleParams, 'vaParams') ==1
+        vaParams = moduleParams.vaParams;
+    else
+        vaParams = struct;
     end
 
 end
@@ -113,6 +120,11 @@ diskSolve(fileParams, dsParams, verbose);
 
 adjacencyMatrix(fileParams, amParams, verbose);
 
+%% module to perform Voronoi analysis on the particle data. Set parameters in vaParams structure
+
+
+voronoi(fileParams, vaParams, verbose);
+
 return
 
 end
@@ -135,6 +147,10 @@ if isfield(fileParams,'imgDir') == 0
     end
 end
 
+if isfield(fileParams,'processedImgDir') == 0
+    fileParams.processedImgDir = 'processed_images'; % where the preprocessed images are saved
+end
+
 if isfield(fileParams,'particleDir') == 0
     fileParams.particleDir = 'particles';
 end
@@ -151,17 +167,17 @@ if isfield(fileParams,'adjacencyDir') == 0
    fileParams.adjacencyDir = 'adjacency';
 end
 
+if isfield(fileParams,'voronoiDir') == 0
+   fileParams.voronoiDir = 'voronoi';
+end
+
 if isfield(fileParams,'imgReg') == 0
     fileParams.imgReg = '*.jpg'; %image format and regex
     % several Step*.jpg files are present on GitHub as sample data
 end
 
-
-
 if verbose
     disp(fileParams)
 end
-
-
 
 end

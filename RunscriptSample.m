@@ -8,6 +8,7 @@ fileParams.particleDir = 'particles'; %output directory for particle information
 fileParams.contactDir = 'contacts'; % output directory for contact information
 fileParams.solvedDir = 'solved'; % output directory for solved force information
 fileParams.adjacencyDir = 'adjacency'; % adjacency list directory
+fileParams.voronoiDir = 'voronoi'; % voronoi analysis directory
 fileParams.imgReg = '*.jpg'; %image format and regex
 fileParams.frameIdInd = 8; %the index in the file names where sequential numbering starts, optional, remove if unwanted or if naming conventions are irregular
 
@@ -77,13 +78,18 @@ dsParams.vectorise = 0; %Run vectorised version of disk solver (coming soon)
 
 %% adjacencyMatrix parameters
 
-
 amParams.go = true; %compile adjaceceny lists for each image, set to false if you have already done this and only want to have the big list
 amParams.fmin = 0.000001;%minimum force (in Newtons) to consider a contact a valid contact
 amParams.fmax = 1000; %maximum force (in Newtons) to consider a contact a valid contact
 amParams.emax = 2800; %maximum fit error/residual to consider a contact a valid contact
 amParams.skipvalue = 20; %I chose this as a result of my system size, could and should be altered based on your specific system and variability in finding particles
 
+%% voronoi parameters
+
+vaParams.area_threshold = 1.0; % Maximum area multiplier relative to average area for valid Voronoi cells
+vaParams.acute_angle_filter = true; % Filter out Voronoi cells with acute angles
+vaParams.acute_angle_threshold = 60; % Angle in degrees below which a cell corner is considered acute
+vaParams.save_figures = true; % Save Voronoi diagram figures
 
 %% compile module parameters into their own structure to pass into PeGSModular
 
@@ -93,6 +99,7 @@ moduleParams.ptParams = ptParams;
 moduleParams.cdParams = cdParams;
 moduleParams.dsParams = dsParams;
 moduleParams.amParams = amParams;
+moduleParams.vaParams = vaParams;
 
 %% run
 PeGSModular(fileParams, moduleParams, verbose)

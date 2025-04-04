@@ -129,7 +129,32 @@ for frame = 1 : nFrames
             sImg = particle(round(n)).synthImg; %synthetic force image for the current particle
             sx = size(sImg,1)/2; %width of the synthetic force image of the current particle
             sy = size(sImg,2)/2; %heights of the synthetic force image of the current partice
-            bigSynthImg(round(y-sy+1):round(y+sy),round(x-sx+1):round(x+sx)) = bigSynthImg(round(y-sy+1):round(y+sy),round(x-sx+1):round(x+sx))+sImg; %Add the syntetic Force Image of the current particle to the appropriate location
+            
+            % Calculate proposed indices with boundary checks
+            y_start = max(1, round(y-sy+1));
+            y_end = min(size(bigSynthImg,1), round(y+sy));
+            x_start = max(1, round(x-sx+1));
+            x_end = min(size(bigSynthImg,2), round(x+sx));
+            
+            % Calculate corresponding indices in sImg
+            s_y_start = y_start - (round(y-sy+1)) + 1;
+            s_y_end = s_y_start + (y_end - y_start);
+            s_x_start = x_start - (round(x-sx+1)) + 1;
+            s_x_end = s_x_start + (x_end - x_start);
+            
+            % Only add the synthetic image if indices are valid
+            if y_end >= y_start && x_end >= x_start && ...
+               s_y_end <= size(sImg,1) && s_x_end <= size(sImg,2) && ...
+               s_y_start >= 1 && s_x_start >= 1
+                bigSynthImg(y_start:y_end, x_start:x_end) = ...
+                    bigSynthImg(y_start:y_end, x_start:x_end) + ...
+                    sImg(s_y_start:s_y_end, s_x_start:s_x_end);
+            else
+                % Skip this particle if it's too close to the edge
+                if verbose
+                    disp(['Warning: Particle ', num2str(n), ' is too close to the image boundary. Skipping.']);
+                end
+            end
             
         end
     
