@@ -27,6 +27,7 @@
 % - `auto_detect`: automatically detect image type and apply appropriate parameters
 % - `obstacle_mask`: apply obstacle masking to blank out specific areas
 % - `region_specific`: apply region-specific contrast enhancement
+% - `reference_image`: path to reference image for calculating light correction coefficients
 %
 % **notes**
 % This module is designed to be inserted before particleDetect in the PeGS workflow.
@@ -64,6 +65,14 @@ end
 
 % Get parameters if not set
 p = paramsSetUp(ipParams);
+
+% Calculate light correction coefficients from reference image if provided
+if isfield(p, 'reference_image') && ~isempty(p.reference_image)
+    if verbose
+        disp('Calculating light correction coefficients from reference image...');
+    end
+    p.light_correction_coefficients = calculateLightCorrectionCoefficients(p.reference_image, verbose);
+end
 
 % Save the parameters used
 paramFile = fullfile(processedImgDirPath, 'imagePreprocess_params.txt');
@@ -331,6 +340,11 @@ function p = paramsSetUp(ipParams)
         p.light_correction_coefficients = [-9.268015495383530e-09, 1.192483586444351e-06, 0.076128557100614];
     end
     
+    % Reference image for light correction
+    if ~isfield(p, 'reference_image')
+        p.reference_image = ''; % Empty by default
+    end
+    
     % Global intensity adjustment
     if ~isfield(p, 'I_low')
         p.I_low = 0.09;
@@ -347,5 +361,56 @@ function p = paramsSetUp(ipParams)
     % Region-specific processing (for test.JPG)
     if ~isfield(p, 'region_specific')
         p.region_specific = true; % Default to true
+    end
+end
+
+%% Function to calculate light correction coefficients from reference image
+function coefficients = calculateLightCorrectionCoefficients(reference_image_path, verbose)
+    % Read the reference image
+    img = imread(reference_image_path);
+    info = imfinfo(reference_image_path);
+    Width = double(info.Width);
+    Height = double(info.Height);
+    img = im2double(img);  % Store the image with intensities scaled [0 1]
+    
+    % Convert to grayscale if RGB
+    if size(img, 3) == 3
+        img = rgb2gray(img);
+    end
+    
+    % Consider a horizontal test line from the image edge to centre
+    test_line = img(round(0.5*Height-100), 1:round(0.5*Width));  % Intensity values along the test line
+    dist = linspace(length(test_line), 1, length(test_line));  % Distance from centre along the test line
+    
+    % Fit a quadratic curve to relating distance and intensity
+    coefficients = polyfit(dist, test_line, 2);
+    
+    % Transform the obtained function to find the intensity correction function coefficients
+    coefficients = [-coefficients(1) coefficients(2) 0];
+    
+    if verbose
+        % Plot to visualize the correction
+        figure('Name', 'Light Correction Analysis');
+        subplot(2,1,1);
+        rel_dist = dist/max(dist);
+        scatter(rel_dist, test_line, 'ro');
+        hold on;
+        xFit = linspace(min(dist), max(dist), 3000);
+        yFit = polyval([-coefficients(1) coefficients(2) 0], xFit);
+        plot(xFit/max(dist), yFit, 'b-');
+        xlabel('Relative distance from centre to edge [-]');
+        ylabel('Original pixel intensity [-]');
+        title('Original Intensity Profile');
+        ylim([0 0.20]);
+        
+        subplot(2,1,2);
+        I_corr_1 = polyval(coefficients, dist);
+        I_corr_2 = test_line + I_corr_1;
+        scatter(rel_dist, I_corr_2, 'go');
+        xlabel('Relative distance from centre to edge [-]');
+        ylabel('Corrected pixel intensity [-]');
+        title('Corrected Intensity Profile');
+        ylim([0 0.20]);
+        drawnow;
     end
 end 
